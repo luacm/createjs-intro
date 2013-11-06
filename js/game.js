@@ -19,7 +19,8 @@ var game = this.game || {};
  */
 (function(module) {
     // There are no constants in javascript but we can give ourselves a visual
-    // hint that we shouldn't change them by making them all caps.
+    // hint that we shouldn't change them by making them all caps. And these
+    // are all pretty self explanatory as to what they are.
     var FRAME_RATE = 60;
     var STAGE_WIDTH;
     var STAGE_HEIGHT;
@@ -244,12 +245,24 @@ var game = this.game || {};
         enemies.push(e);
     }
 
-    
+    /**
+     * We need to check to see if any bullets are colliding with any enemies. If they are,
+     * we should delete both the bullet and enemy, and then remove them from their respective
+     * arrays.
+     */
     function checkBulletEnemyCollision() {
+        // We're taking the simplest approach here by checking if each bullet is colliding
+        // with any of the enemies. There are better techniques to do this, but this is fine
+        // four our purposes. Notice that the loops go in reverse. This is because we are
+        // removing elements from the array as we go along. As an exercise, you can see what
+        // problems would arise if you looped forward.
         for (var i = bullets.length - 1; i >= 0; i--) {
             var b = bullets[i];
             for (var j = enemies.length - 1; j >= 0; j--) {
                 var e = enemies[j];
+
+                // If they're colliding, remove them. Pretty simple stuff here. The
+                // neat part is in the circleCollision function.
                 if (circleCollision(b.sprite, BULLET_RADIUS, e.sprite, ENEMY_RADIUS)) {
                     stage.removeChild(e.sprite);
                     enemies.splice(j, 1);
@@ -261,18 +274,35 @@ var game = this.game || {};
         }
     }
 
+    /** 
+     * We need to check if the enemies are touching the hero. If you were going for efficiency,
+     * you could run this in tandem with the bullet collision detection, but breaking it apart
+     * is more readable and won't be much more performance intensive (as our enemy list never
+     * gets particularly long).
+     */
     function checkEnemyHeroCollision() {
+        // This is even simpler than the checkBulletEnemyCollision because there's only one
+        // player. Just one loop here.
         for (var i = enemies.length - 1; i >= 0; i--) {
             var e = enemies[i];
             if (circleCollision(player, PLAYER_RADIUS, e.sprite, ENEMY_RADIUS)) {
+                // We set this flag to true so we don't get infinite alerts.
                 gameOver = true;
                 alert("Game Over!");
             }
         }
     }
 
-
+    /**
+     * The reason we're using all circles in this game is because collision detection is
+     * very simple. To tell if two circles are touching, all you need to know is the 
+     * distance between them. If the distance is less than or equal to the sum of the
+     * two circles' radii, then you know they must be colliding.
+     */
     function circleCollision(sprite1, r1, sprite2, r2) {
+        // You never thought you'd use the distance formula, did you? If you forget what it is, it's:
+        //      d = sqrt( (x2 - x1)^2 + (y2 - y1)^2 )
+        // Knowing that, it's pretty easy to implement here.
         var dx = sprite1.x - sprite2.x;
         var dy = sprite1.y - sprite2.y;
         var dist = Math.sqrt(dx * dx + dy * dy);
@@ -282,7 +312,28 @@ var game = this.game || {};
     // =======================================================================
     // CLASSES
     // =======================================================================
-
+    /**
+     * We're going to create some basic classes here to keep track of our objects. There are multiple
+     * techniques to make classes in javascript (as there is no set 'class' notation), but this one is
+     * pretty popular and easy to read. The function name is the class name, and the signature itself is
+     * the constructor. Any variables attached to 'this' become the public fields of the class. 
+     *
+     * Now, if we wanted to be real cool kids, we could subclass the existing Shape class in createjs.
+     * In fact, they have a guide to do it here: http://createjs.com/tutorials/Inheritance/
+     * However, if you read that guide, you can hopefully appreciate why we're going to keep it simple here.
+     * The method involves using prototypes, which could take a while to explain. Heck, you can see that the
+     * two classes we've written here are pretty darn similar and would benefit from inheritance, but once 
+     * again, we're just going to keep things simple.
+     *
+     * Instead, we'll just create a Shape object that each class holds. The benefit to making a class is that
+     * we can give each object it's own tick method, so it can move itself if we give it a velocity. The tricky
+     * part to remember is that when we add the Bullet or Enemy to the stage, we need to add it's sprite, not
+     * the object itself.
+     *
+     * As an exercise, I recommend following that createjs inheritance guide and refactoring this. It'll
+     * come out a lot cleaner!
+     */
+    
     function Bullet(vx, vy) {
         this.vx = vx;
         this.vy = vy;
@@ -290,6 +341,9 @@ var game = this.game || {};
         this.sprite = new createjs.Shape();
         this.sprite.graphics.beginFill("blue").drawCircle(0, 0, BULLET_RADIUS);
 
+        /**
+         * Every tick, we'll just add our x and y velocities to our current position.
+         */
         this.tick = function(e) {
             this.sprite.x += vx;
             this.sprite.y += vy;
@@ -303,17 +357,22 @@ var game = this.game || {};
         this.sprite = new createjs.Shape();
         this.sprite.graphics.beginFill("red").drawCircle(0, 0, ENEMY_RADIUS);
 
+        /**
+         * Every tick, we'll just add our x and y velocities to our current position.
+         */
         this.tick = function(e) {
             this.sprite.x += vx;
             this.sprite.y += vy;
-            
         }
     }
-
-
-
 })(game);
 
+/**
+ * This is the function that will be called when the page is done loading. We're just going to 
+ * call the init function on our game module to kick everything off. Remember that by passing
+ * 'game' into that anonymous function just above this, we have attached methods to it. One of
+ * those was 'init'.
+ */
 window.onload = function() {
     game.init();
 }
