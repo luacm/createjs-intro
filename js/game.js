@@ -162,7 +162,7 @@ var game = this.game || {};
 
         // This call is super-important. It tells the stage to update the
         // canvas to reflect the game state. Without it, nothing would happen
-        // visually!
+        // visually!g
         stage.update();
     }
 
@@ -170,14 +170,56 @@ var game = this.game || {};
     // GAME FUNCTIONS
     // =======================================================================
 
+    /**
+     * This function will create a new bullet, position it appropriately,
+     * and get it moving towards the mouse cursor.
+     */
+    function shoot(x, y) {
+        // So, the general strategy here is that we first have to find the angle
+        // created between the mouse and the player. Once we know this angle,
+        // we can use the desired speed we want the bullet to travel to break down
+        // the bullet's movement into its respective x and y components. This is all
+        // just basic trigonometry. 
+
+        // To find the angle, we want to find each leg of the triangle (the x and 
+        // y differences) and then find the arctan of their ratio. If you draw the
+        // triangle out on paper, this will make a lot more sense.
+        var dx = x - player.x;
+        var dy = y - player.y;
+        var theta = Math.atan2(dy, dx);
+
+        // Now that we have our angle, we want to find what the legs of the triangle
+        // would be if we had a hypotenuse whose length is the speed of the bullet.
+        // This is how much we want the bullet to move in the x and y direction 
+        // each frame.
+        var vx = Math.cos(theta) * BULLET_SPEED;
+        var vy = Math.sin(theta) * BULLET_SPEED;
+
+        // Now we just make a bullet and position it (not forgetting to add it
+        // to the stage).
+        var b = new Bullet(vx, vy);
+        b.sprite.x = player.x + Math.cos(theta) * PLAYER_RADIUS;
+        b.sprite.y = player.y + Math.sin(theta) * PLAYER_RADIUS;
+        stage.addChild(b.sprite);
+
+        // Finally, we store it in an array so we can reference it later.
+        bullets.push(b);
+    }
+
+
+
+    /**
+     * This function will put an enemy at a random location off-screen and start
+     * him moving towards the player.
+     */
     function spawnEnemy() {
         var rad = Math.random() * Math.PI * 2;
         var radius = STAGE_WIDTH/2 + STAGE_HEIGHT/2;
         var x = player.x + Math.cos(rad) * radius;
         var y = player.y + Math.sin(rad) * radius;
-        var moveRad = Math.atan2(y - player.y, x - player.x);
-        var vx = -Math.cos(moveRad) * ENEMY_SPEED;
-        var vy = -Math.sin(moveRad) * ENEMY_SPEED;
+        var moveRad = Math.atan2(player.y - y, player.x - x);
+        var vx = Math.cos(moveRad) * ENEMY_SPEED;
+        var vy = Math.sin(moveRad) * ENEMY_SPEED;
         var e = new Enemy(vx, vy);
         e.sprite.x = x;
         e.sprite.y = y;
@@ -185,21 +227,7 @@ var game = this.game || {};
         stage.addChild(e.sprite);
     }
 
-    function shoot(x, y) {
-        var dx = x - player.x;
-        var dy = y - player.y;
-        var rad = Math.atan2(dy, dx);
-
-        var vx = Math.cos(rad) * BULLET_SPEED;
-        var vy = Math.sin(rad) * BULLET_SPEED;
-
-        var b = new Bullet(vx, vy);
-        b.sprite.x = player.x + Math.cos(rad) * PLAYER_RADIUS;
-        b.sprite.y = player.y + Math.sin(rad) * PLAYER_RADIUS;
-        stage.addChild(b.sprite);
-        bullets.push(b);
-    }
-
+    
     function checkBulletEnemyCollision() {
         for (var i = bullets.length - 1; i >= 0; i--) {
             var b = bullets[i];
