@@ -37,6 +37,10 @@ var game = this.game || {};
 
     var gameOver = false;
 
+    // =======================================================================
+    // INITIALIZATION
+    // =======================================================================
+
     /**
      * This is what will be called to kick off our game.
      */
@@ -96,38 +100,75 @@ var game = this.game || {};
         // Here we're just listening for when the mouse button clicks down on the stage.
         // When it does, we'll call the mouseDown function we've defined.
         stage.addEventListener("stagemousedown", mouseDown);
+
+        // FPS stands for "Frames Per Second" - it's how often the game screen refreshes.
+        // Here, we're telling it to use a constant we've already defined. 
         createjs.Ticker.setFPS(FRAME_RATE);
+
+        // RAF is a special browser property that makes games more efficient in modern 
+        // browsers. Don't worry about it, just know that it's good to turn on.
         createjs.Ticker.useRAF = true;
+
+        // This is adding the event for every time a new frame is rendered. We want to 
+        // do all of our updating in this 'tock' function, as this is what will be called
+        // 60 times per second (or whatever your framerate is).
         createjs.Ticker.addEventListener("tick", tick);
 
+        // Finally, we're just setting a timer to spawn an enemy ever two seconds.
         setInterval(spawnEnemy, 2000);
     }
 
+    // =======================================================================
+    // EVENTS
+    // =======================================================================
+
+    /**
+     * This function is called every time the mouse clicks down on the stage.
+     */
     function mouseDown(e) {
+        // We're just going to shoot towards the current mouse position. Always use 
+        // mouseX and mouseY to get your mouse position, as createjs has already made
+        // them relative to the top left corner of the canvas instead of absolutely
+        // positioned in the window.
         shoot(stage.mouseX, stage.mouseY);
     }
 
+    /**
+     * This is our update function. It will be called every 1/60 of a second (or whatever
+     * you chose your frameerate to be). It's where we decide what happenns for this next
+     * frame.
+     */
     function tick(e) {
+        // If the game is over, do nothing.
         if (gameOver) {
-            stage.update();
             return;
         }
 
-        // Move all of the bullets
+        // Run through our list of bullets and call each of their tick
+        // functions so they can update themselves.
         for (var i = 0; i < bullets.length; i++) {
             bullets[i].tick(e);
         }
 
-        // Move all of the enemies
+        // Run through our list of enemies and call each of their tick
+        // functions so they can update themselves.
         for (var i = 0; i < enemies.length; i++) {
             enemies[i].tick(e);
         }
 
+        // Check for collisions between all of our things.
         checkBulletEnemyCollision();
         checkEnemyHeroCollision();
 
+        // This call is super-important. It tells the stage to update the
+        // canvas to reflect the game state. Without it, nothing would happen
+        // visually!
         stage.update();
     }
+
+    // =======================================================================
+    // GAME FUNCTIONS
+    // =======================================================================
 
     function spawnEnemy() {
         var rad = Math.random() * Math.PI * 2;
@@ -192,6 +233,10 @@ var game = this.game || {};
         var dist = Math.sqrt(dx * dx + dy * dy);
         return dist <= r1 + r2;
     }
+
+    // =======================================================================
+    // CLASSES
+    // =======================================================================
 
     function Bullet(vx, vy) {
         this.vx = vx;
