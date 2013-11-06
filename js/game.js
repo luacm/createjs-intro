@@ -8,12 +8,15 @@ var game = this.game || {};
     var BULLET_RADIUS = 5;
     var PLAYER_RADIUS = 30;
     var ENEMY_RADIUS = 15;
+    var ENEMY_SPEED = 1;
 
     var canvas;
     var stage;
     var player;
     var enemies = [];
     var bullets = [];
+
+    var gameOver = false;
 
     module.init = function() {
         canvas = document.getElementById("js-canvas");
@@ -62,6 +65,11 @@ var game = this.game || {};
     }
 
     function tick(e) {
+        if (gameOver) {
+            stage.update();
+            return;
+        }
+
         // Move all of the bullets
         for (var i = 0; i < bullets.length; i++) {
             bullets[i].tick(e);
@@ -79,9 +87,16 @@ var game = this.game || {};
     }
 
     function spawnEnemy() {
-        var e = new Enemy(Math.random(), Math.random());
-        e.sprite.x = 100;
-        e.sprite.y = 100;
+        var rad = Math.random() * Math.PI * 2;
+        var radius = STAGE_WIDTH/2 + STAGE_HEIGHT/2;
+        var x = player.x + Math.cos(rad) * radius;
+        var y = player.y + Math.sin(rad) * radius;
+        var moveRad = Math.atan2(y - player.y, x - player.x);
+        var vx = -Math.cos(moveRad) * ENEMY_SPEED;
+        var vy = -Math.sin(moveRad) * ENEMY_SPEED;
+        var e = new Enemy(vx, vy);
+        e.sprite.x = x;
+        e.sprite.y = y;
         enemies.push(e);
         stage.addChild(e.sprite);
     }
@@ -121,7 +136,8 @@ var game = this.game || {};
         for (var i = enemies.length - 1; i >= 0; i--) {
             var e = enemies[i];
             if (circleCollision(player, PLAYER_RADIUS, e.sprite, ENEMY_RADIUS)) {
-                alert("You lose.");
+                gameOver = true;
+                alert("Game Over!");
             }
         }
     }
@@ -131,7 +147,6 @@ var game = this.game || {};
         var dx = sprite1.x - sprite2.x;
         var dy = sprite1.y - sprite2.y;
         var dist = Math.sqrt(dx * dx + dy * dy);
-
         return dist <= r1 + r2;
     }
 
