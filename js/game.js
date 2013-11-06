@@ -72,13 +72,13 @@ var game = this.game || {};
         // without degredation.
         player = new createjs.Shape();
 
-        // Here we're saying that we're going make the shape a white circle
+        // Here we're saying that we're going make the shape a black circle
         // with a radius of PLAYER_RADIUS at position 0. Objects in createjs
         // all have their own local coordinate system that's separate from the
         // global coordinate system. Drawings should usually center around the 
         // origin in the local coordinate system to make it easier to find 
         // relative positions later.
-        player.graphics.beginFill("white").drawCircle(0, 0, PLAYER_RADIUS);
+        player.graphics.beginFill("black").drawCircle(0, 0, PLAYER_RADIUS);
 
         // We're putting our player in the center of the stage. These coordiantes
         // are referencing the global coordinate system. You'll notice our y-value 

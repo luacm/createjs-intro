@@ -1,7 +1,15 @@
 html, body {
-    background-color: black;
     margin: 0;
     padding: 0;
+}
+
+h1 {
+    text-align: center;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", "sans serif";
+    font-weight: 100;
+    font-size: 48px;
+    margin-top: 25px;
+    margin-bottom: 0;
 }
 
 .game-container {
@@ -9,6 +17,6 @@ html, body {
 }
 
 canvas {
-    margin-top: 50px;
-    border: 1px solid white;
+    margin-top: 25px;
+    border: 1px solid black;
 }
