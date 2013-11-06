@@ -184,6 +184,8 @@ var game = this.game || {};
         // To find the angle, we want to find each leg of the triangle (the x and 
         // y differences) and then find the arctan of their ratio. If you draw the
         // triangle out on paper, this will make a lot more sense.
+        // Note: Make sure your subtraction order is <target> - <source>. Otherwise,
+        // you'll get the opposite angle you want!
         var dx = x - player.x;
         var dy = y - player.y;
         var theta = Math.atan2(dy, dx);
@@ -213,18 +215,33 @@ var game = this.game || {};
      * him moving towards the player.
      */
     function spawnEnemy() {
-        var rad = Math.random() * Math.PI * 2;
+        // We're going to use the same techniques we used with shooting with the enemy. 
+        // However, instead of calculating theta, we're going to generate a random one to
+        // set the starting position of the enemy.
+        var theta = Math.random() * Math.PI * 2;
+
+        // We want it to be outside of the stage, so we add the horizontal and vertical
+        // 'radius' of the stage to be sure we'll be outside of it at any angle.
         var radius = STAGE_WIDTH/2 + STAGE_HEIGHT/2;
-        var x = player.x + Math.cos(rad) * radius;
-        var y = player.y + Math.sin(rad) * radius;
-        var moveRad = Math.atan2(player.y - y, player.x - x);
-        var vx = Math.cos(moveRad) * ENEMY_SPEED;
-        var vy = Math.sin(moveRad) * ENEMY_SPEED;
+
+        // Then we just do what we did before to calculate the enemy's position
+        var enemyX = player.x + Math.cos(theta) * radius;
+        var enemyY = player.y + Math.sin(theta) * radius;
+
+        // We grab our angle used for the enemy's velocity. Remember, it's
+        // <target> - <source>. Then we grab velocity just like we did for the bullet.
+        var moveTheta = Math.atan2(player.y - enemyY, player.x - enemyX);
+        var vx = Math.cos(moveTheta) * ENEMY_SPEED;
+        var vy = Math.sin(moveTheta) * ENEMY_SPEED;
+
+        // Now we can create and position our enemy, making sure to add it to the stage.
         var e = new Enemy(vx, vy);
         e.sprite.x = x;
         e.sprite.y = y;
-        enemies.push(e);
         stage.addChild(e.sprite);
+
+        // And just like the bullets, we keep track of the enemies using an array.
+        enemies.push(e);
     }
 
     
