@@ -11,4 +11,4 @@ Yes! Many of the 2D games in the Windows Store (like Cut the Rope) are written i
 It really depends. Windows Phone 8 actually has the fastest JavaScript performance, and you can get near-full speed on that platform. iOS comes in second, performing well, but not anywhere near 60fps. Android, surprisingly, comes in last. It just can't handle it, which is strange considering the JavaScript performance of Chrome on the desktop.
 
 ## Where can I learn more about how to use all of the different stuff in CreateJS?
-You can find the official documentation for CreateJS (here)[http://createjs.com/Docs/EaselJS/modules/EaselJS.html]. It's actually very good!
+You can find the official documentation for CreateJS [here](http://createjs.com/Docs/EaselJS/modules/EaselJS.html). It's actually very good!
