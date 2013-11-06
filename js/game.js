@@ -237,8 +237,8 @@ var game = this.game || {};
 
         // Now we can create and position our enemy, making sure to add it to the stage.
         var e = new Enemy(vx, vy);
-        e.sprite.x = x;
-        e.sprite.y = y;
+        e.sprite.x = enemyX;
+        e.sprite.y = enemyY;
         stage.addChild(e.sprite);
 
         // And just like the bullets, we keep track of the enemies using an array.
