@@ -1,6 +1,25 @@
+// Here we're defining our game module. If our project was bigger and
+// consisted of multiple files, then we could keep adding our code into
+// this module, and the module may or may not exist by the time this file
+// is read. That's why this line looks the way it does. We're saying that
+// 'game' is equal to the pre-existing game module if it exists, and
+// if it doesn't exist, then it's equal to a new empty object. The 
+// javascript || operator is useful here to bundle this into one line. 
+// It works because 'null' and 'undefined' and falsey values in javascript.
+ 
 var game = this.game || {};
 
+/**
+ * We're wrapping our code in what's called an IFFE ("iffy"). It stands for
+ * Immediately Invoked Function Expression. You'll notice that it's a
+ * function wrapped in a pair of parentheses, and followed by '()'. That means
+ * that this anonymous function will be called immediately after it is defined.
+ * We pass our 'game' module in as an argument as a way to make methods public
+ * on that module. An example is the 'init' function.
+ */
 (function(module) {
+    // There are no constants in javascript but we can give ourselves a visual
+    // hint that we shouldn't change them by making them all caps.
     var FRAME_RATE = 60;
     var STAGE_WIDTH;
     var STAGE_HEIGHT;
@@ -18,29 +37,65 @@ var game = this.game || {};
 
     var gameOver = false;
 
+    /**
+     * This is what will be called to kick off our game.
+     */
     module.init = function() {
+        // This grabs our canvas element from our page.
         canvas = document.getElementById("js-canvas");
+
+        // Here we create a new stage - it's what holds everything
+        // visual in our game.
         stage = new createjs.Stage(canvas);
+
+        // It'll be useful to know the dimensions of our stage late
         STAGE_WIDTH = canvas.width;
         STAGE_HEIGHT = canvas.height;
 
+        // Here we call some subroutines to finish up initialization.
+        // We could have written the code here, but it reads nicer this way.
         initPlayer();
         initEvents();
     }
 
+    /**
+     * We initialize the player here. He's just going to be a circle in the
+     * middle of the stage.
+     */
     function initPlayer() {
+        // Shapes are vector images in createjs. That means that they scale 
+        // without degredation.
         player = new createjs.Shape();
+
+        // Here we're saying that we're going make the shape a white circle
+        // with a radius of PLAYER_RADIUS at position 0. Objects in createjs
+        // all have their own local coordinate system that's separate from the
+        // global coordinate system. Drawings should usually center around the 
+        // origin in the local coordinate system to make it easier to find 
+        // relative positions later.
         player.graphics.beginFill("white").drawCircle(0, 0, PLAYER_RADIUS);
+
+        // We're putting our player in the center of the stage. These coordiantes
+        // are referencing the global coordinate system. You'll notice our y-value 
+        // is positive here. That's because the origin in almost all game engines
+        // is in the top-left corner, with y increasing as you go down. The reason
+        // for this is that montiors draw out the lines that make up the screen from
+        // top to bottom, left to right. It's confusing at first, but it becomes 
+        // second nature as you do more game development. 
         player.x = STAGE_WIDTH / 2;
         player.y = STAGE_HEIGHT / 2;
+
+        // Here's another important game concept - adding children. Currently, our player
+        // isn't in the 'display list' - a list of objects that the stage will render
+        // to the canvas. Only children of the stage (and their children) will be drawn.
+        // Here, we're adding our player to the stage to be drawn.
         stage.addChild(player);
     }
 
     function initEvents() {
-        window.onkeydown = keyDown;
-        window.onkeyup = keyUp;
+        // Here we're just listening for when the mouse button clicks down on the stage.
+        // When it does, we'll call the mouseDown function we've defined.
         stage.addEventListener("stagemousedown", mouseDown);
-        canvas.onmouseup = mouseUp;
         createjs.Ticker.setFPS(FRAME_RATE);
         createjs.Ticker.useRAF = true;
         createjs.Ticker.addEventListener("tick", tick);
@@ -48,20 +103,8 @@ var game = this.game || {};
         setInterval(spawnEnemy, 2000);
     }
 
-    function keyDown(e) {
-
-    }
-
-    function keyUp(e) {
-
-    }
-
     function mouseDown(e) {
         shoot(stage.mouseX, stage.mouseY);
-    }
-
-    function mouseUp(e) {
-        
     }
 
     function tick(e) {
